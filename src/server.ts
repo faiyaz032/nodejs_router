@@ -1,4 +1,5 @@
 import http from 'http';
+import parseParams from './lib/parseParam';
 import router from './router';
 
 const universalRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
@@ -6,14 +7,31 @@ const universalRequestHandler = (req: http.IncomingMessage, res: http.ServerResp
   const url = req.url as string;
   const method = req.method?.toLowerCase() as string;
 
+  //extract url and methods
+  const urlChunks = url.split('/');
+
   //find all routes for the requested method
   const routes = router[method];
 
-  //TODO: Initial requirements to create a basic router mechanism
-  // loop through all the routes and matchRoute if exists
-  // if route does not exists on the router then fallback to notFoundHandler
-  // parse parameter from the url
-  // parse quey from the url
+  //loop through all the routes and invoke the right route
+  for (const route in routes) {
+    const routeChunks = route.split('/');
+
+    //if the route base is not same then break the loop
+    if (urlChunks[1] !== routeChunks[1]) break;
+
+    //parse params
+    const params = parseParams(url, route);
+
+    //if there is no params then invoke the corresponding route
+    if (urlChunks.length === routeChunks.length && !params) {
+      return routes[route](req, res);
+    }
+    //if there params then invoke the corresponding route with parsed parameters
+    if (urlChunks.length === routeChunks.length && params) {
+      return routes[route](req, res, params);
+    }
+  }
 };
 
 const server = http.createServer(universalRequestHandler);

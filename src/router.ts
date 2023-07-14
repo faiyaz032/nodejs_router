@@ -6,7 +6,7 @@ import sendResponse from './utils/sendResponse';
  */
 interface Router {
   [key: string]: {
-    [key: string]: (req: IncomingMessage, res: ServerResponse) => void;
+    [key: string]: (req: IncomingMessage, res: ServerResponse, params?: object) => void;
   };
 }
 
@@ -16,9 +16,11 @@ interface Router {
 const router: Router = {
   get: {
     '/users': (req, res) => {
+      console.log('hitting');
       sendResponse(res, 200, { message: 'I am users' });
     },
-    '/users/:id': (req, res) => {
+    '/users/:id/:name': (req, res, params) => {
+      console.log('params', params);
       sendResponse(res, 200, { message: 'I am user with id' });
     },
     '/students': (req, res) => {
