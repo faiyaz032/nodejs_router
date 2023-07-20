@@ -1,4 +1,5 @@
-import { IncomingMessage, ServerResponse } from 'http';
+import { ServerResponse } from 'http';
+import { CustomIncomingMessage } from './server';
 import sendResponse from './utils/sendResponse';
 
 /**
@@ -6,7 +7,7 @@ import sendResponse from './utils/sendResponse';
  */
 interface Router {
   [key: string]: {
-    [key: string]: (req: IncomingMessage, res: ServerResponse, params?: object) => void;
+    [key: string]: (req: CustomIncomingMessage, res: ServerResponse) => void;
   };
 }
 
@@ -19,9 +20,9 @@ const router: Router = {
       console.log('hitting');
       sendResponse(res, 200, { message: 'I am users' });
     },
-    '/users/:id/:name': (req, res, params) => {
-      console.log('params', params);
-      sendResponse(res, 200, { message: 'I am user with id' });
+    '/users/:id/:name': (req, res) => {
+      console.log('params', req.params);
+      sendResponse(res, 200, { message: 'I am user with id', data: req.params });
     },
     '/students': (req, res) => {
       sendResponse(res, 200, { message: 'I am students' });

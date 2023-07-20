@@ -2,7 +2,12 @@ import http from 'http';
 import parseParams from './lib/parseParam';
 import router from './router';
 
-const universalRequestHandler = (req: http.IncomingMessage, res: http.ServerResponse) => {
+export interface CustomIncomingMessage extends http.IncomingMessage {
+  params?: object;
+  body?: object;
+}
+
+const universalRequestHandler = (req: CustomIncomingMessage, res: http.ServerResponse) => {
   //extract url and method from the request
   const url = req.url as string;
   const method = req.method?.toLowerCase() as string;
@@ -29,7 +34,8 @@ const universalRequestHandler = (req: http.IncomingMessage, res: http.ServerResp
     }
     //if there params then invoke the corresponding route with parsed parameters
     if (urlChunks.length === routeChunks.length && params) {
-      return routes[route](req, res, params);
+      req.params = params;
+      return routes[route](req, res);
     }
   }
 };
